@@ -118,13 +118,6 @@
             this.btnDeleteOwner = new RoundedButton() { Location = new Point(500, 320), Text = "Delete", BackColor = Color.SteelBlue, ForeColor = Color.White };
             this.btnUpdateOwner = new RoundedButton() { Location = new Point(620, 320), Text = "Update", BackColor = Color.SteelBlue, ForeColor = Color.White };
 
-            // Hover effect
-            foreach (var btn in new[] { btnAddOwner, btnDeleteOwner, btnUpdateOwner, btnRefresh, btnToggleDarkMode })
-            {
-                btn.MouseEnter += (s, e) => { ((Button)s).BackColor = Color.DodgerBlue; };
-                btn.MouseLeave += (s, e) => { ((Button)s).BackColor = Color.SteelBlue; };
-            }
-
             this.tabOwners.Controls.AddRange(new Control[] { dgvOwners, txtOwnerName, txtOwnerPhone, btnAddOwner, btnDeleteOwner, btnUpdateOwner });
 
             // ===== CARS TAB =====
