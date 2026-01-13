@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<resheader name="resmimetype">
+		<value>text/microsoft-resx</value>
+	</resheader>
+	<resheader name="version">
+		<value>2.0</value>
+	</resheader>
+	<resheader name="reader">
+		<value>System.Resources.ResXResourceReader, System.Windows.Forms</value>
+	</resheader>
+	<resheader name="writer">
+		<value>System.Resources.ResXResourceWriter, System.Windows.Forms</value>
+	</resheader>
+
+	<data name="Form1_Title">
+		<value>Autojuhtide haldur</value>
+	</data>
+
+	<data name="btnRefresh">
+		<value>Värskenda</value>
+	</data>
+	<data name="btnToggleDarkMode">
+		<value>Tume režiim</value>
+	</data>
+
+	<data name="tabOwners">
+		<value>Omanikud</value>
+	</data>
+	<data name="tabCars">
+		<value>Autod</value>
+	</data>
+	<data name="tabMaintenance">
+		<value>Hooldus</value>
+	</data>
+
+	<data name="txtOwnerName_Placeholder">
+		<value>Täisnimi</value>
+	</data>
+	<data name="txtOwnerPhone_Placeholder">
+		<value>Telefon</value>
+	</data>
+	<data name="btnAddOwner">
+		<value>Lisa omanik</value>
+	</data>
+	<data name="btnDeleteOwner">
+		<value>Kustuta</value>
+	</data>
+	<data name="btnUpdateOwner">
+		<value>Uuenda</value>
+	</data>
+
+	<data name="txtCarBrand_Placeholder">
+		<value>Mark</value>
+	</data>
+	<data name="txtCarModel_Placeholder">
+		<value>Mudel</value>
+	</data>
+	<data name="txtCarReg_Placeholder">
+		<value>Registrikood</value>
+	</data>
+	<data name="btnAddCar">
+		<value>Lisa auto</value>
+	</data>
+	<data name="btnDeleteCar">
+		<value>Kustuta</value>
+	</data>
+	<data name="btnUpdateCar">
+		<value>Uuenda</value>
+	</data>
+
+	<data name="txtServiceName_Placeholder">
+		<value>Teenuse nimi</value>
+	</data>
+	<data name="txtServicePrice_Placeholder">
+		<value>Hind</value>
+	</data>
+	<data name="btnAddService">
+		<value>Lisa</value>
+	</data>
+	<data name="btnDeleteService">
+		<value>Kustuta</value>
+	</data>
+	<data name="btnUpdateService">
+		<value>Uuenda</value>
+	</data>
+
+	<data name="txtMileage_Placeholder">
+		<value>Kilometraaž</value>
+	</data>
+	<data name="btnAddCarService">
+		<value>Lisa kirje</value>
+	</data>
+	<data name="btnUpdateCarService">
+		<value>Uuenda kirjet</value>
+	</data>
+</root>
