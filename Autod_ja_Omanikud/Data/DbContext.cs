@@ -11,6 +11,7 @@ namespace Autod_ja_Omanikud.Data
         public DbSet<Car> Cars { get; set; }
         public DbSet<Service> Services { get; set; }
         public DbSet<CarService> CarServices { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -30,6 +31,10 @@ namespace Autod_ja_Omanikud.Data
             modelBuilder.Entity<Service>()
                 .Property(s => s.Price)
                 .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Username)
+                .IsUnique();
 
             base.OnModelCreating(modelBuilder);
         }

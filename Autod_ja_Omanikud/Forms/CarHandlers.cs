@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace Autod_ja_Omanikud
 {
-    // Partial extension of Form1 - place vehicle handlers here if you prefer separation.
+    // Partial extension
     public partial class Form1
     {
         // ===== CARS =====

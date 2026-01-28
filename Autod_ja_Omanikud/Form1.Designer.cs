@@ -5,6 +5,7 @@
         private System.ComponentModel.IContainer components = null;
         private RoundedButton btnRefresh;
         private RoundedButton btnToggleDarkMode;
+        private RoundedButton btnManageUsers;
 
         private System.Windows.Forms.TabControl tabControl;
         private System.Windows.Forms.TabPage tabOwners;
@@ -13,37 +14,26 @@
 
         // Owners
         private System.Windows.Forms.DataGridView dgvOwners;
-        private System.Windows.Forms.TextBox txtOwnerName;
-        private System.Windows.Forms.TextBox txtOwnerPhone;
         private RoundedButton btnAddOwner;
         private RoundedButton btnDeleteOwner;
         private RoundedButton btnUpdateOwner;
 
         // Cars
         private System.Windows.Forms.DataGridView dgvCars;
-        private System.Windows.Forms.TextBox txtCarBrand;
-        private System.Windows.Forms.TextBox txtCarModel;
-        private System.Windows.Forms.TextBox txtCarReg;
-        private System.Windows.Forms.ComboBox cmbCarOwner;
         private RoundedButton btnAddCar;
         private RoundedButton btnDeleteCar;
         private RoundedButton btnUpdateCar;
 
         // Services
         private System.Windows.Forms.DataGridView dgvServices;
-        private System.Windows.Forms.TextBox txtServiceName;
-        private System.Windows.Forms.TextBox txtServicePrice;
         private RoundedButton btnAddService;
         private RoundedButton btnDeleteService;
         private RoundedButton btnUpdateService;
 
         // Car Services / Maintenance Entries
         private System.Windows.Forms.DataGridView dgvCarServices;
-        private System.Windows.Forms.ComboBox cmbCarForService;
-        private System.Windows.Forms.ComboBox cmbServiceForCar;
-        private System.Windows.Forms.DateTimePicker dtpServiceDate;
-        private System.Windows.Forms.TextBox txtMileage;
         private RoundedButton btnAddCarService;
+        private RoundedButton btnDeleteCarService;
         private RoundedButton btnUpdateCarService;
 
         // Language selector
@@ -63,6 +53,7 @@
             this.components = new System.ComponentModel.Container();
             this.btnRefresh = new RoundedButton();
             this.btnToggleDarkMode = new RoundedButton();
+            this.btnManageUsers = new RoundedButton();
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tabOwners = new System.Windows.Forms.TabPage();
             this.tabCars = new System.Windows.Forms.TabPage();
@@ -95,6 +86,15 @@
             this.btnToggleDarkMode.FlatAppearance.BorderSize = 0;
             this.btnToggleDarkMode.Click += BtnToggleDarkMode_Click;
 
+            // ===== Manage Users Button (admin only) =====
+            this.btnManageUsers.Location = new System.Drawing.Point(500, 10);
+            this.btnManageUsers.Size = new System.Drawing.Size(100, 30);
+            this.btnManageUsers.Text = "Users";
+            this.btnManageUsers.BackColor = System.Drawing.Color.SteelBlue;
+            this.btnManageUsers.ForeColor = System.Drawing.Color.White;
+            this.btnManageUsers.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnManageUsers.FlatAppearance.BorderSize = 0;
+
             // ===== Language ComboBox =====
             this.cmbLanguage.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbLanguage.Location = new System.Drawing.Point(610, 10);
@@ -113,7 +113,7 @@
             this.tabCars.BackColor = System.Drawing.Color.AliceBlue;
             this.tabMaintenance.BackColor = System.Drawing.Color.AliceBlue;
 
-            this.Controls.AddRange(new System.Windows.Forms.Control[] { btnRefresh, btnToggleDarkMode, cmbLanguage, tabControl });
+            this.Controls.AddRange(new System.Windows.Forms.Control[] { btnRefresh, btnToggleDarkMode, btnManageUsers, cmbLanguage, tabControl });
 
             // ===== OWNERS TAB =====
             this.tabOwners.Text = "Owners";
@@ -125,14 +125,11 @@
             this.dgvOwners.RowHeadersVisible = false;
             this.dgvOwners.BorderStyle = System.Windows.Forms.BorderStyle.None;
 
-            this.txtOwnerName = new System.Windows.Forms.TextBox() { Location = new System.Drawing.Point(10, 320), Width = 200, PlaceholderText = "Full Name", BackColor = System.Drawing.Color.White, ForeColor = System.Drawing.Color.Black };
-            this.txtOwnerPhone = new System.Windows.Forms.TextBox() { Location = new System.Drawing.Point(220, 320), Width = 150, PlaceholderText = "Phone", BackColor = System.Drawing.Color.White, ForeColor = System.Drawing.Color.Black };
-
             this.btnAddOwner = new RoundedButton() { Location = new System.Drawing.Point(380, 320), Text = "Add Owner", BackColor = System.Drawing.Color.SteelBlue, ForeColor = System.Drawing.Color.White };
             this.btnDeleteOwner = new RoundedButton() { Location = new System.Drawing.Point(500, 320), Text = "Delete", BackColor = System.Drawing.Color.SteelBlue, ForeColor = System.Drawing.Color.White };
             this.btnUpdateOwner = new RoundedButton() { Location = new System.Drawing.Point(620, 320), Text = "Update", BackColor = System.Drawing.Color.SteelBlue, ForeColor = System.Drawing.Color.White };
 
-            this.tabOwners.Controls.AddRange(new System.Windows.Forms.Control[] { dgvOwners, txtOwnerName, txtOwnerPhone, btnAddOwner, btnDeleteOwner, btnUpdateOwner });
+            this.tabOwners.Controls.AddRange(new System.Windows.Forms.Control[] { dgvOwners, btnAddOwner, btnDeleteOwner, btnUpdateOwner });
 
             // ===== CARS TAB =====
             this.tabCars.Text = "Cars";
@@ -144,16 +141,11 @@
             this.dgvCars.RowHeadersVisible = false;
             this.dgvCars.BorderStyle = System.Windows.Forms.BorderStyle.None;
 
-            this.txtCarBrand = new System.Windows.Forms.TextBox() { Location = new System.Drawing.Point(10, 320), Width = 150, PlaceholderText = "Brand", BackColor = System.Drawing.Color.White, ForeColor = System.Drawing.Color.Black };
-            this.txtCarModel = new System.Windows.Forms.TextBox() { Location = new System.Drawing.Point(170, 320), Width = 150, PlaceholderText = "Model", BackColor = System.Drawing.Color.White, ForeColor = System.Drawing.Color.Black };
-            this.txtCarReg = new System.Windows.Forms.TextBox() { Location = new System.Drawing.Point(330, 320), Width = 150, PlaceholderText = "Registration", BackColor = System.Drawing.Color.White, ForeColor = System.Drawing.Color.Black };
-            this.cmbCarOwner = new System.Windows.Forms.ComboBox() { Location = new System.Drawing.Point(490, 320), Width = 200, BackColor = System.Drawing.Color.White, ForeColor = System.Drawing.Color.Black };
-
             this.btnAddCar = new RoundedButton() { Location = new System.Drawing.Point(700, 320), Text = "Add Car", BackColor = System.Drawing.Color.SteelBlue, ForeColor = System.Drawing.Color.White };
             this.btnDeleteCar = new RoundedButton() { Location = new System.Drawing.Point(820, 320), Text = "Delete", BackColor = System.Drawing.Color.SteelBlue, ForeColor = System.Drawing.Color.White };
             this.btnUpdateCar = new RoundedButton() { Location = new System.Drawing.Point(700, 360), Text = "Update", BackColor = System.Drawing.Color.SteelBlue, ForeColor = System.Drawing.Color.White };
 
-            this.tabCars.Controls.AddRange(new System.Windows.Forms.Control[] { dgvCars, txtCarBrand, txtCarModel, txtCarReg, cmbCarOwner, btnAddCar, btnDeleteCar, btnUpdateCar });
+            this.tabCars.Controls.AddRange(new System.Windows.Forms.Control[] { dgvCars, btnAddCar, btnDeleteCar, btnUpdateCar });
 
             // ===== MAINTENANCE TAB =====
             this.tabMaintenance.Text = "Maintenance";
@@ -164,9 +156,6 @@
             this.dgvServices.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(230, 230, 250);
             this.dgvServices.RowHeadersVisible = false;
             this.dgvServices.BorderStyle = System.Windows.Forms.BorderStyle.None;
-
-            this.txtServiceName = new System.Windows.Forms.TextBox() { Location = new System.Drawing.Point(10, 220), Width = 200, PlaceholderText = "Service Name", BackColor = System.Drawing.Color.White, ForeColor = System.Drawing.Color.Black };
-            this.txtServicePrice = new System.Windows.Forms.TextBox() { Location = new System.Drawing.Point(220, 220), Width = 100, PlaceholderText = "Price", BackColor = System.Drawing.Color.White, ForeColor = System.Drawing.Color.Black };
 
             this.btnAddService = new RoundedButton() { Location = new System.Drawing.Point(340, 220), Text = "Add", BackColor = System.Drawing.Color.SteelBlue, ForeColor = System.Drawing.Color.White };
             this.btnDeleteService = new RoundedButton() { Location = new System.Drawing.Point(440, 220), Text = "Delete", BackColor = System.Drawing.Color.SteelBlue, ForeColor = System.Drawing.Color.White };
@@ -180,16 +169,13 @@
             this.dgvCarServices.RowHeadersVisible = false;
             this.dgvCarServices.BorderStyle = System.Windows.Forms.BorderStyle.None;
 
-            this.cmbCarForService = new System.Windows.Forms.ComboBox() { Location = new System.Drawing.Point(10, 470), Width = 200, BackColor = System.Drawing.Color.White, ForeColor = System.Drawing.Color.Black };
-            this.cmbServiceForCar = new System.Windows.Forms.ComboBox() { Location = new System.Drawing.Point(220, 470), Width = 200, BackColor = System.Drawing.Color.White, ForeColor = System.Drawing.Color.Black };
-            this.dtpServiceDate = new System.Windows.Forms.DateTimePicker() { Location = new System.Drawing.Point(430, 470), Width = 150, CalendarForeColor = System.Drawing.Color.Black, CalendarMonthBackground = System.Drawing.Color.White };
-            this.txtMileage = new System.Windows.Forms.TextBox() { Location = new System.Drawing.Point(590, 470), Width = 100, PlaceholderText = "Mileage", BackColor = System.Drawing.Color.White, ForeColor = System.Drawing.Color.Black };
-            this.btnAddCarService = new RoundedButton() { Location = new System.Drawing.Point(700, 470), Text = "Add Entry", BackColor = System.Drawing.Color.SteelBlue, ForeColor = System.Drawing.Color.White };
-            this.btnUpdateCarService = new RoundedButton() { Location = new System.Drawing.Point(820, 470), Text = "Update Entry", BackColor = System.Drawing.Color.SteelBlue, ForeColor = System.Drawing.Color.White };
+            this.btnAddCarService = new RoundedButton() { Location = new System.Drawing.Point(640, 470), Text = "Add Entry", BackColor = System.Drawing.Color.SteelBlue, ForeColor = System.Drawing.Color.White };
+            this.btnDeleteCarService = new RoundedButton() { Location = new System.Drawing.Point(760, 470), Text = "Delete Entry", BackColor = System.Drawing.Color.SteelBlue, ForeColor = System.Drawing.Color.White };
+            this.btnUpdateCarService = new RoundedButton() { Location = new System.Drawing.Point(880, 470), Text = "Update Entry", BackColor = System.Drawing.Color.SteelBlue, ForeColor = System.Drawing.Color.White };
 
             this.tabMaintenance.Controls.AddRange(new System.Windows.Forms.Control[] {
-                dgvServices, txtServiceName, txtServicePrice, btnAddService, btnDeleteService, btnUpdateService,
-                dgvCarServices, cmbCarForService, cmbServiceForCar, dtpServiceDate, txtMileage, btnAddCarService, btnUpdateCarService
+                dgvServices, btnAddService, btnDeleteService, btnUpdateService,
+                dgvCarServices, btnAddCarService, btnDeleteCarService, btnUpdateCarService
             });
 
             // Add tabs to tab control (already done above via Controls.Add)

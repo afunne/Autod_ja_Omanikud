@@ -8,7 +8,6 @@ using System.Windows.Forms;
 using System.Globalization;
 using System.Resources;
 using System.IO;
-using System.Reflection;
 using System.Collections.Generic;
 
 namespace Autod_ja_Omanikud
@@ -16,9 +15,16 @@ namespace Autod_ja_Omanikud
     public partial class Form1 : Form
     {
         private AutoDbContext _context;
+        private bool isDarkMode = false;
+        private readonly User _currentUser;
 
-        public Form1()
+        private const string LangConfigFileName = "language.config";
+        private ResourceManager _resManager => Properties.Resources.ResourceManager;
+
+        public Form1(User currentUser)
         {
+            _currentUser = currentUser;
+
             InitializeComponent();
 
             // Initialize localization (must run after InitializeComponent so controls exist)
@@ -27,7 +33,7 @@ namespace Autod_ja_Omanikud
             _context = new AutoDbContext();
             LoadAll();
 
-            // Wire up buttons (handlers moved to partial files: OwnerHandlers.cs and CarHandlers.cs)
+            // Wire up buttons (handlers for owners/cars are in partial files too)
             btnAddOwner.Click += BtnAddOwner_Click;
             btnDeleteOwner.Click += BtnDeleteOwner_Click;
             btnUpdateOwner.Click += BtnUpdateOwner_Click;
@@ -41,9 +47,56 @@ namespace Autod_ja_Omanikud
             btnUpdateService.Click += BtnUpdateService_Click;
 
             btnAddCarService.Click += BtnAddCarService_Click;
+            btnDeleteCarService.Click += BtnDeleteCarService_Click;
             btnUpdateCarService.Click += BtnUpdateCarService_Click;
 
             btnRefresh.Click += BtnRefresh_Click; // Refresh button
+
+            btnManageUsers.Click += BtnManageUsers_Click;
+
+            ApplyPermissions();
+        }
+
+        // Parameterless constructor for designer support only
+        public Form1() : this(new User
+        {
+            Username = "Designer",
+            IsSuperAdmin = true,
+            CanManageOwners = true,
+            CanManageCars = true,
+            CanManageServices = true,
+            CanManageMaintenance = true,
+            CanManageUsers = true
+        })
+        {
+        }
+
+        private void ApplyPermissions()
+        {
+            bool isSuper = _currentUser.IsSuperAdmin;
+
+            bool canOwners = isSuper || _currentUser.CanManageOwners;
+            btnAddOwner.Enabled = canOwners;
+            btnDeleteOwner.Enabled = canOwners;
+            btnUpdateOwner.Enabled = canOwners;
+
+            bool canCars = isSuper || _currentUser.CanManageCars;
+            btnAddCar.Enabled = canCars;
+            btnDeleteCar.Enabled = canCars;
+            btnUpdateCar.Enabled = canCars;
+
+            bool canServices = isSuper || _currentUser.CanManageServices;
+            btnAddService.Enabled = canServices;
+            btnDeleteService.Enabled = canServices;
+            btnUpdateService.Enabled = canServices;
+
+            bool canMaintenance = isSuper || _currentUser.CanManageMaintenance;
+            btnAddCarService.Enabled = canMaintenance;
+            btnDeleteCarService.Enabled = canMaintenance;
+            btnUpdateCarService.Enabled = canMaintenance;
+
+            bool canUsers = isSuper || _currentUser.CanManageUsers;
+            btnManageUsers.Visible = canUsers;
         }
 
         private void LoadAll()
@@ -78,30 +131,38 @@ namespace Autod_ja_Omanikud
                     c.OwnerId
                 })
                 .ToList();
-
-            cmbCarOwner.DataSource = _context.Owners.ToList();
-            cmbCarOwner.DisplayMember = "FullName";
-            cmbCarOwner.ValueMember = "Id";
         }
 
-        // ===== SERVICES =====
+        // ===== SERVICES (MAINTENANCE TOP GRID) =====
         private void LoadServices()
         {
             dgvServices.DataSource = _context.Services.ToList();
-
-            cmbServiceForCar.DataSource = _context.Services.ToList();
-            cmbServiceForCar.DisplayMember = "Id";
-            cmbServiceForCar.ValueMember = "Id";
         }
 
         private void BtnAddService_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtServiceName.Text)) return;
+            var fields = new List<FieldSpec>
+            {
+                new FieldSpec { Name = "Name",  Label = "Service name", Type = FieldType.Text,   Value = "" },
+                new FieldSpec { Name = "Price", Label = "Price",        Type = FieldType.Number, Value = "" }
+            };
+
+            using var dlg = new ModalForm("Add service", fields);
+            if (dlg.ShowDialog(this) != DialogResult.OK) return;
+
+            if (!dlg.Values.TryGetValue("Name", out var name) || string.IsNullOrWhiteSpace(name))
+            {
+                MessageBox.Show("Service name is required.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            dlg.Values.TryGetValue("Price", out var priceStr);
             var service = new Service
             {
-                Name = txtServiceName.Text,
-                Price = decimal.TryParse(txtServicePrice.Text, out var price) ? price : 0
+                Name = name,
+                Price = decimal.TryParse(priceStr, out var price) ? price : 0
             };
+
             _context.Services.Add(service);
             _context.SaveChanges();
             LoadServices();
@@ -122,13 +183,28 @@ namespace Autod_ja_Omanikud
             if (dgvServices.CurrentRow == null) return;
             var service = _context.Services.Find((int)dgvServices.CurrentRow.Cells["Id"].Value);
             if (service == null) return;
-            service.Name = txtServiceName.Text;
-            service.Price = decimal.TryParse(txtServicePrice.Text, out var price) ? price : service.Price;
+
+            var fields = new List<FieldSpec>
+            {
+                new FieldSpec { Name = "Name",  Label = "Service name", Type = FieldType.Text,   Value = service.Name },
+                new FieldSpec { Name = "Price", Label = "Price",        Type = FieldType.Number, Value = service.Price.ToString("0.##") }
+            };
+
+            using var dlg = new ModalForm("Update service", fields);
+            if (dlg.ShowDialog(this) != DialogResult.OK) return;
+
+            if (dlg.Values.TryGetValue("Name", out var name) && !string.IsNullOrWhiteSpace(name))
+                service.Name = name;
+
+            if (dlg.Values.TryGetValue("Price", out var priceStr) &&
+                decimal.TryParse(priceStr, out var price))
+                service.Price = price;
+
             _context.SaveChanges();
             LoadServices();
         }
 
-        // ===== CAR SERVICES =====
+        // ===== CAR SERVICES (MAINTENANCE BOTTOM GRID) =====
         private void LoadCarServices()
         {
             dgvCarServices.DataSource = _context.CarServices
@@ -140,27 +216,146 @@ namespace Autod_ja_Omanikud
                     cs.Mileage
                 })
                 .ToList();
-
-            cmbCarForService.DataSource = _context.Cars.ToList();
-            cmbCarForService.DisplayMember = "Id";
-            cmbCarForService.ValueMember = "Id";
-
-            cmbServiceForCar.DataSource = _context.Services.ToList();
-            cmbServiceForCar.DisplayMember = "Id";
-            cmbServiceForCar.ValueMember = "Id";
         }
 
         private void BtnAddCarService_Click(object sender, EventArgs e)
         {
-            if (cmbCarForService.SelectedValue == null || cmbServiceForCar.SelectedValue == null) return;
+            OpenCarServiceModalForAdd();
+        }
+
+        private void BtnManageUsers_Click(object sender, EventArgs e)
+        {
+            using var dlg = new Forms.UserManagementForm();
+            dlg.ShowDialog(this);
+        }
+
+        private void BtnDeleteCarService_Click(object sender, EventArgs e)
+        {
+            if (dgvCarServices.CurrentRow == null) return;
+
+            var carId = (int)dgvCarServices.CurrentRow.Cells["CarId"].Value;
+            var serviceId = (int)dgvCarServices.CurrentRow.Cells["ServiceId"].Value;
+            var dateOfService = (DateTime)dgvCarServices.CurrentRow.Cells["DateOfService"].Value;
+
+            var cs = _context.CarServices.Find(carId, serviceId, dateOfService);
+            if (cs == null) return;
+
+            _context.CarServices.Remove(cs);
+            _context.SaveChanges();
+            LoadCarServices();
+        }
+
+        private void OpenCarServiceModalForAdd()
+        {
+            var carOptions = _context.Cars
+                .Select(c => new KeyValuePair<string, string>(
+                    c.Id.ToString(),
+                    $"{c.Id}: {c.Brand} {c.Model} ({c.RegistrationNumber})"
+                ))
+                .ToList();
+
+            var serviceOptions = _context.Services
+                .Select(s => new KeyValuePair<string, string>(
+                    s.Id.ToString(),
+                    $"{s.Id}: {s.Name}"
+                ))
+                .ToList();
+
+            if (carOptions.Count == 0 || serviceOptions.Count == 0)
+            {
+                MessageBox.Show(
+                    "Please add at least one car and one service before adding maintenance entries.",
+                    "No data",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+                return;
+            }
+
+            var fields = new List<FieldSpec>
+            {
+                new FieldSpec { Name = "CarId",         Label = "Car",             Type = FieldType.Combo,  Options = carOptions },
+                new FieldSpec { Name = "ServiceId",     Label = "Service",         Type = FieldType.Combo,  Options = serviceOptions },
+                new FieldSpec { Name = "Mileage",       Label = "Mileage",         Type = FieldType.Number, Value = "" },
+                new FieldSpec { Name = "DateOfService", Label = "Date of service", Type = FieldType.Date,   Value = DateTime.Today.ToShortDateString() }
+            };
+
+            using var dlg = new ModalForm("Add maintenance entry", fields);
+            if (dlg.ShowDialog(this) != DialogResult.OK) return;
+
+            if (!dlg.Values.TryGetValue("CarId", out var carIdStr) ||
+                !dlg.Values.TryGetValue("ServiceId", out var serviceIdStr) ||
+                !dlg.Values.TryGetValue("Mileage", out var mileageStr) ||
+                !dlg.Values.TryGetValue("DateOfService", out var dateStr))
+            {
+                MessageBox.Show("All fields are required.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (!int.TryParse(carIdStr, out var carId) ||
+                !int.TryParse(serviceIdStr, out var serviceId) ||
+                !int.TryParse(mileageStr, out var mileage) ||
+                !DateTime.TryParse(dateStr, out var date))
+            {
+                MessageBox.Show("Invalid values. Check inputs.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             var cs = new CarService
             {
-                CarId = (int)cmbCarForService.SelectedValue,
-                ServiceId = (int)cmbServiceForCar.SelectedValue,
-                DateOfService = dtpServiceDate.Value,
-                Mileage = int.TryParse(txtMileage.Text, out var m) ? m : 0
+                CarId = carId,
+                ServiceId = serviceId,
+                DateOfService = date,
+                Mileage = mileage
             };
+
             _context.CarServices.Add(cs);
+            _context.SaveChanges();
+            LoadCarServices();
+        }
+
+        private void OpenCarServiceModalForUpdate(CarService cs)
+        {
+            var carOptions = _context.Cars
+                .Select(c => new KeyValuePair<string, string>(
+                    c.Id.ToString(),
+                    $"{c.Id}: {c.Brand} {c.Model} ({c.RegistrationNumber})"
+                ))
+                .ToList();
+
+            var serviceOptions = _context.Services
+                .Select(s => new KeyValuePair<string, string>(
+                    s.Id.ToString(),
+                    $"{s.Id}: {s.Name}"
+                ))
+                .ToList();
+
+            var fields = new List<FieldSpec>
+            {
+                new FieldSpec { Name = "CarId",         Label = "Car",             Type = FieldType.Combo,  Options = carOptions,     Value = cs.CarId.ToString() },
+                new FieldSpec { Name = "ServiceId",     Label = "Service",         Type = FieldType.Combo,  Options = serviceOptions, Value = cs.ServiceId.ToString() },
+                new FieldSpec { Name = "Mileage",       Label = "Mileage",         Type = FieldType.Number, Value = cs.Mileage.ToString() },
+                new FieldSpec { Name = "DateOfService", Label = "Date of service", Type = FieldType.Date,   Value = cs.DateOfService.ToShortDateString() }
+            };
+
+            using var dlg = new ModalForm("Update maintenance entry", fields);
+            if (dlg.ShowDialog(this) != DialogResult.OK) return;
+
+            if (dlg.Values.TryGetValue("Mileage", out var mileageStr) &&
+                int.TryParse(mileageStr, out var mileage))
+                cs.Mileage = mileage;
+
+            if (dlg.Values.TryGetValue("DateOfService", out var dateStr) &&
+                DateTime.TryParse(dateStr, out var date))
+                cs.DateOfService = date;
+
+            if (dlg.Values.TryGetValue("CarId", out var carIdStr) &&
+                int.TryParse(carIdStr, out var newCarId))
+                cs.CarId = newCarId;
+
+            if (dlg.Values.TryGetValue("ServiceId", out var serviceIdStr) &&
+                int.TryParse(serviceIdStr, out var newServiceId))
+                cs.ServiceId = newServiceId;
+
             _context.SaveChanges();
             LoadCarServices();
         }
@@ -168,68 +363,46 @@ namespace Autod_ja_Omanikud
         private void BtnUpdateCarService_Click(object sender, EventArgs e)
         {
             if (dgvCarServices.CurrentRow == null) return;
-            var cs = _context.CarServices.Find(
-                (int)dgvCarServices.CurrentRow.Cells["CarId"].Value,
-                (int)dgvCarServices.CurrentRow.Cells["ServiceId"].Value,
-                (DateTime)dgvCarServices.CurrentRow.Cells["DateOfService"].Value
-            );
+
+            var carId = (int)dgvCarServices.CurrentRow.Cells["CarId"].Value;
+            var serviceId = (int)dgvCarServices.CurrentRow.Cells["ServiceId"].Value;
+            var dateOfService = (DateTime)dgvCarServices.CurrentRow.Cells["DateOfService"].Value;
+
+            var cs = _context.CarServices.Find(carId, serviceId, dateOfService);
             if (cs == null) return;
-            cs.Mileage = int.TryParse(txtMileage.Text, out var m) ? m : cs.Mileage;
-            _context.SaveChanges();
-            LoadCarServices();
+
+            OpenCarServiceModalForUpdate(cs);
         }
 
-        private bool isDarkMode = false;
-
+        // ===== DARK MODE =====
         private void BtnToggleDarkMode_Click(object sender, EventArgs e)
         {
             if (!isDarkMode)
             {
-                // Dark Mode
                 this.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
                 tabOwners.BackColor = System.Drawing.Color.FromArgb(45, 45, 45);
                 tabCars.BackColor = System.Drawing.Color.FromArgb(45, 45, 45);
                 tabMaintenance.BackColor = System.Drawing.Color.FromArgb(45, 45, 45);
 
-                // DataGridViews
                 System.Drawing.Color dgvBg = System.Drawing.Color.FromArgb(50, 50, 50);
                 System.Drawing.Color dgvText = System.Drawing.Color.White;
                 System.Drawing.Color dgvHeader = System.Drawing.Color.FromArgb(70, 70, 70);
 
-                dgvOwners.BackgroundColor = dgvBg;
-                dgvOwners.DefaultCellStyle.BackColor = dgvBg;
-                dgvOwners.DefaultCellStyle.ForeColor = dgvText;
-                dgvOwners.ColumnHeadersDefaultCellStyle.BackColor = dgvHeader;
-                dgvOwners.ColumnHeadersDefaultCellStyle.ForeColor = dgvText;
+                foreach (var dgv in new[] { dgvOwners, dgvCars, dgvServices, dgvCarServices })
+                {
+                    dgv.BackgroundColor = dgvBg;
+                    dgv.DefaultCellStyle.BackColor = dgvBg;
+                    dgv.DefaultCellStyle.ForeColor = dgvText;
+                    dgv.ColumnHeadersDefaultCellStyle.BackColor = dgvHeader;
+                    dgv.ColumnHeadersDefaultCellStyle.ForeColor = dgvText;
+                }
 
-                dgvCars.BackgroundColor = dgvBg;
-                dgvCars.DefaultCellStyle.BackColor = dgvBg;
-                dgvCars.DefaultCellStyle.ForeColor = dgvText;
-                dgvCars.ColumnHeadersDefaultCellStyle.BackColor = dgvHeader;
-                dgvCars.ColumnHeadersDefaultCellStyle.ForeColor = dgvText;
-
-                dgvServices.BackgroundColor = dgvBg;
-                dgvServices.DefaultCellStyle.BackColor = dgvBg;
-                dgvServices.DefaultCellStyle.ForeColor = dgvText;
-                dgvServices.ColumnHeadersDefaultCellStyle.BackColor = dgvHeader;
-                dgvServices.ColumnHeadersDefaultCellStyle.ForeColor = dgvText;
-
-                dgvCarServices.BackgroundColor = dgvBg;
-                dgvCarServices.DefaultCellStyle.BackColor = dgvBg;
-                dgvCarServices.DefaultCellStyle.ForeColor = dgvText;
-                dgvCarServices.ColumnHeadersDefaultCellStyle.BackColor = dgvHeader;
-                dgvCarServices.ColumnHeadersDefaultCellStyle.ForeColor = dgvText;
-
-                // TextBoxes and ComboBoxes
                 System.Drawing.Color tbBack = System.Drawing.Color.FromArgb(60, 60, 60);
                 System.Drawing.Color tbFore = System.Drawing.Color.White;
 
                 foreach (Control c in this.Controls)
-                {
                     ApplyDarkMode(c, tbBack, tbFore);
-                }
 
-                // Buttons
                 System.Drawing.Color btnBack = System.Drawing.Color.FromArgb(70, 70, 70);
                 System.Drawing.Color btnFore = System.Drawing.Color.White;
 
@@ -242,7 +415,6 @@ namespace Autod_ja_Omanikud
             }
             else
             {
-                // Light/Blue Mode
                 this.BackColor = System.Drawing.Color.LightBlue;
                 tabOwners.BackColor = System.Drawing.Color.AliceBlue;
                 tabCars.BackColor = System.Drawing.Color.AliceBlue;
@@ -250,7 +422,7 @@ namespace Autod_ja_Omanikud
 
                 System.Drawing.Color dgvHeader = System.Drawing.Color.SteelBlue;
 
-                foreach (DataGridView dgv in new[] { dgvOwners, dgvCars, dgvServices, dgvCarServices })
+                foreach (var dgv in new[] { dgvOwners, dgvCars, dgvServices, dgvCarServices })
                 {
                     dgv.BackgroundColor = System.Drawing.Color.White;
                     dgv.DefaultCellStyle.BackColor = System.Drawing.Color.White;
@@ -260,15 +432,12 @@ namespace Autod_ja_Omanikud
                 }
 
                 foreach (Control c in this.Controls)
-                {
                     ApplyLightMode(c);
-                }
 
                 isDarkMode = false;
             }
         }
 
-        // Recursive helper for dark mode on all controls
         private void ApplyDarkMode(Control c, System.Drawing.Color back, System.Drawing.Color fore)
         {
             if (c is TextBox || c is ComboBox || c is DateTimePicker)
@@ -288,7 +457,6 @@ namespace Autod_ja_Omanikud
             }
         }
 
-        // Recursive helper for light mode
         private void ApplyLightMode(Control c)
         {
             if (c is TextBox || c is ComboBox || c is DateTimePicker)
@@ -308,15 +476,9 @@ namespace Autod_ja_Omanikud
             }
         }
 
-        // --- Localization helpers ---
-        private const string LangConfigFileName = "language.config";
-
-        private ResourceManager _resManager => Properties.Resources.ResourceManager;
-
-        // Call this from the constructor after InitializeComponent()
+        // ===== LOCALIZATION =====
         private void InitLocalization()
         {
-            // populate language combo (value = culture code)
             cmbLanguage.Items.Clear();
             cmbLanguage.Items.Add(new KeyValuePair<string, string>("en", "English"));
             cmbLanguage.Items.Add(new KeyValuePair<string, string>("et", "Eesti"));
@@ -324,11 +486,9 @@ namespace Autod_ja_Omanikud
             cmbLanguage.DisplayMember = "Value";
             cmbLanguage.ValueMember = "Key";
 
-            // load saved language or default to system language
             var lang = LoadSavedLanguage() ?? CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
             if (string.IsNullOrWhiteSpace(lang)) lang = "en";
 
-            // select in combo and apply
             for (int i = 0; i < cmbLanguage.Items.Count; i++)
             {
                 var kv = (KeyValuePair<string, string>)cmbLanguage.Items[i];
@@ -339,10 +499,7 @@ namespace Autod_ja_Omanikud
                 }
             }
 
-            // event
             cmbLanguage.SelectedIndexChanged += CmbLanguage_SelectedIndexChanged;
-
-            // apply initial translations
             ApplyTranslations(lang);
         }
 
@@ -381,10 +538,6 @@ namespace Autod_ja_Omanikud
             catch { /* ignore */ }
         }
 
-        /// <summary>
-        /// Apply translations for the given two-letter language code (e.g., "en", "et").
-        /// Add/extend keys in the Resources files as needed.
-        /// </summary>
         private void ApplyTranslations(string lang)
         {
             CultureInfo ci;
@@ -412,12 +565,7 @@ namespace Autod_ja_Omanikud
             s = rm.GetString("tabMaintenance", ci);
             if (!string.IsNullOrEmpty(s)) tabMaintenance.Text = s;
 
-            // Owners controls
-            s = rm.GetString("txtOwnerName_Placeholder", ci);
-            if (!string.IsNullOrEmpty(s)) txtOwnerName.PlaceholderText = s;
-            s = rm.GetString("txtOwnerPhone_Placeholder", ci);
-            if (!string.IsNullOrEmpty(s)) txtOwnerPhone.PlaceholderText = s;
-
+            // Owners buttons (owner textboxes were removed)
             s = rm.GetString("btnAddOwner", ci);
             if (!string.IsNullOrEmpty(s)) btnAddOwner.Text = s;
             s = rm.GetString("btnDeleteOwner", ci);
@@ -425,13 +573,7 @@ namespace Autod_ja_Omanikud
             s = rm.GetString("btnUpdateOwner", ci);
             if (!string.IsNullOrEmpty(s)) btnUpdateOwner.Text = s;
 
-            // Cars controls
-            s = rm.GetString("txtCarBrand_Placeholder", ci);
-            if (!string.IsNullOrEmpty(s)) txtCarBrand.PlaceholderText = s;
-            s = rm.GetString("txtCarModel_Placeholder", ci);
-            if (!string.IsNullOrEmpty(s)) txtCarModel.PlaceholderText = s;
-            s = rm.GetString("txtCarReg_Placeholder", ci);
-            if (!string.IsNullOrEmpty(s)) txtCarReg.PlaceholderText = s;
+            // Cars controls (text fields removed, only buttons remain)
             s = rm.GetString("btnAddCar", ci);
             if (!string.IsNullOrEmpty(s)) btnAddCar.Text = s;
             s = rm.GetString("btnDeleteCar", ci);
@@ -439,11 +581,7 @@ namespace Autod_ja_Omanikud
             s = rm.GetString("btnUpdateCar", ci);
             if (!string.IsNullOrEmpty(s)) btnUpdateCar.Text = s;
 
-            // Services controls
-            s = rm.GetString("txtServiceName_Placeholder", ci);
-            if (!string.IsNullOrEmpty(s)) txtServiceName.PlaceholderText = s;
-            s = rm.GetString("txtServicePrice_Placeholder", ci);
-            if (!string.IsNullOrEmpty(s)) txtServicePrice.PlaceholderText = s;
+            // Services controls (text fields removed, only buttons remain)
             s = rm.GetString("btnAddService", ci);
             if (!string.IsNullOrEmpty(s)) btnAddService.Text = s;
             s = rm.GetString("btnDeleteService", ci);
@@ -451,15 +589,13 @@ namespace Autod_ja_Omanikud
             s = rm.GetString("btnUpdateService", ci);
             if (!string.IsNullOrEmpty(s)) btnUpdateService.Text = s;
 
-            // Car service entries
-            s = rm.GetString("txtMileage_Placeholder", ci);
-            if (!string.IsNullOrEmpty(s)) txtMileage.PlaceholderText = s;
+            // Car service entries (mileage text field removed)
             s = rm.GetString("btnAddCarService", ci);
             if (!string.IsNullOrEmpty(s)) btnAddCarService.Text = s;
+            s = rm.GetString("btnDeleteCarService", ci);
+            if (!string.IsNullOrEmpty(s)) btnDeleteCarService.Text = s;
             s = rm.GetString("btnUpdateCarService", ci);
             if (!string.IsNullOrEmpty(s)) btnUpdateCarService.Text = s;
-
-            // Note: DataGridView column headers / dynamic content must be updated where you set them (e.g., after setting DataSource).
         }
     }
 }
