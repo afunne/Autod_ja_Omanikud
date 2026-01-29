@@ -27,13 +27,13 @@ namespace Autod_ja_Omanikud
 
             InitializeComponent();
 
-            // Initialize localization (must run after InitializeComponent so controls exist)
+            // Initialize localization
             InitLocalization();
 
             _context = new AutoDbContext();
             LoadAll();
 
-            // Wire up buttons (handlers for owners/cars are in partial files too)
+            // Wire up buttons
             btnAddOwner.Click += BtnAddOwner_Click;
             btnDeleteOwner.Click += BtnDeleteOwner_Click;
             btnUpdateOwner.Click += BtnUpdateOwner_Click;
@@ -112,13 +112,13 @@ namespace Autod_ja_Omanikud
             LoadAll();
         }
 
-        // ===== OWNERS =====
+        // OWNERS
         private void LoadOwners()
         {
             dgvOwners.DataSource = _context.Owners.ToList();
         }
 
-        // ===== CARS =====
+        // CARS 
         private void LoadCars()
         {
             dgvCars.DataSource = _context.Cars
@@ -133,7 +133,7 @@ namespace Autod_ja_Omanikud
                 .ToList();
         }
 
-        // ===== SERVICES (MAINTENANCE TOP GRID) =====
+        // SERVICES
         private void LoadServices()
         {
             dgvServices.DataSource = _context.Services.ToList();
@@ -204,7 +204,7 @@ namespace Autod_ja_Omanikud
             LoadServices();
         }
 
-        // ===== CAR SERVICES (MAINTENANCE BOTTOM GRID) =====
+        // CAR SERVICES
         private void LoadCarServices()
         {
             dgvCarServices.DataSource = _context.CarServices
@@ -273,10 +273,27 @@ namespace Autod_ja_Omanikud
 
             var fields = new List<FieldSpec>
             {
-                new FieldSpec { Name = "CarId",         Label = "Car",             Type = FieldType.Combo,  Options = carOptions },
-                new FieldSpec { Name = "ServiceId",     Label = "Service",         Type = FieldType.Combo,  Options = serviceOptions },
-                new FieldSpec { Name = "Mileage",       Label = "Mileage",         Type = FieldType.Number, Value = "" },
-                new FieldSpec { Name = "DateOfService", Label = "Date of service", Type = FieldType.Date,   Value = DateTime.Today.ToShortDateString() }
+                new FieldSpec 
+                {
+                    Name = "CarId",         
+                    Label = "Car",             
+                    Type = FieldType.Combo,  
+                    Options = carOptions },
+
+                new FieldSpec { Name = "ServiceId",     
+                    Label = "Service",         
+                    Type = FieldType.Combo,  
+                    Options = serviceOptions },
+
+                new FieldSpec { Name = "Mileage",       
+                    Label = "Mileage",         
+                    Type = FieldType.Number, 
+                    Value = "" },
+
+                new FieldSpec { Name = "DateOfService", 
+                    Label = "Date of service", 
+                    Type = FieldType.Date,   
+                    Value = DateTime.Today.ToShortDateString() }
             };
 
             using var dlg = new ModalForm("Add maintenance entry", fields);
@@ -331,10 +348,24 @@ namespace Autod_ja_Omanikud
 
             var fields = new List<FieldSpec>
             {
-                new FieldSpec { Name = "CarId",         Label = "Car",             Type = FieldType.Combo,  Options = carOptions,     Value = cs.CarId.ToString() },
-                new FieldSpec { Name = "ServiceId",     Label = "Service",         Type = FieldType.Combo,  Options = serviceOptions, Value = cs.ServiceId.ToString() },
-                new FieldSpec { Name = "Mileage",       Label = "Mileage",         Type = FieldType.Number, Value = cs.Mileage.ToString() },
-                new FieldSpec { Name = "DateOfService", Label = "Date of service", Type = FieldType.Date,   Value = cs.DateOfService.ToShortDateString() }
+                new FieldSpec { Name = "CarId",         
+                    Label = "Car",             
+                    Type = FieldType.Combo,  
+                    Options = carOptions,    
+                    Value = cs.CarId.ToString() },
+                new FieldSpec { Name = "ServiceId",     
+                    Label = "Service",         
+                    Type = FieldType.Combo,  
+                    Options = serviceOptions, 
+                    Value = cs.ServiceId.ToString() },
+                new FieldSpec { Name = "Mileage",       
+                    Label = "Mileage",         
+                    Type = FieldType.Number, 
+                    Value = cs.Mileage.ToString() },
+                new FieldSpec { Name = "DateOfService", 
+                    Label = "Date of service", 
+                    Type = FieldType.Date,   
+                    Value = cs.DateOfService.ToShortDateString() }
             };
 
             using var dlg = new ModalForm("Update maintenance entry", fields);
@@ -374,7 +405,7 @@ namespace Autod_ja_Omanikud
             OpenCarServiceModalForUpdate(cs);
         }
 
-        // ===== DARK MODE =====
+        // Night mode
         private void BtnToggleDarkMode_Click(object sender, EventArgs e)
         {
             if (!isDarkMode)
@@ -476,7 +507,7 @@ namespace Autod_ja_Omanikud
             }
         }
 
-        // ===== LOCALIZATION =====
+        // localasation
         private void InitLocalization()
         {
             cmbLanguage.Items.Clear();
@@ -524,7 +555,7 @@ namespace Autod_ja_Omanikud
                     if (!string.IsNullOrEmpty(text)) return text;
                 }
             }
-            catch { /* ignore */ }
+            catch { /* ignores :p */ }
             return null;
         }
 
@@ -535,7 +566,7 @@ namespace Autod_ja_Omanikud
                 var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, LangConfigFileName);
                 File.WriteAllText(path, lang);
             }
-            catch { /* ignore */ }
+            catch { /* ignores :p*/ }
         }
 
         private void ApplyTranslations(string lang)
