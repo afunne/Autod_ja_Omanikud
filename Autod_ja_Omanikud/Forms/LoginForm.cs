@@ -4,6 +4,9 @@ using System;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using System.Globalization;
+using System.Resources;
+using System.IO;
 
 namespace Autod_ja_Omanikud.Forms
 {
@@ -19,11 +22,15 @@ namespace Autod_ja_Omanikud.Forms
         public User? AuthenticatedUser { get; private set; }
         public bool LaunchMinesweeper { get; private set; }
 
+        // localization
+        private string _currentLang = "en";
+        private const string LangConfigFileName = "language.config";
+        private ResourceManager _resManager => Properties.Resources.ResourceManager;
+
         public LoginForm()
         {
             _context = new AutoDbContext();
 
-            Text = "Login";
             FormBorderStyle = FormBorderStyle.FixedDialog;
             StartPosition = FormStartPosition.CenterScreen;
             MinimizeBox = false;
@@ -33,6 +40,10 @@ namespace Autod_ja_Omanikud.Forms
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
 
             BuildLayout();
+
+            LoadSavedLanguage();
+            ApplyTranslations();
+
             EnsureDefaultAdminUser();
         }
 
@@ -115,7 +126,10 @@ namespace Autod_ja_Omanikud.Forms
 
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrEmpty(password))
             {
-                MessageBox.Show("Enter username and password.", "Login", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                var ci = GetCulture();
+                var msg = _resManager.GetString("LoginForm_Error_Empty", ci)
+                          ?? "Enter username and password.";
+                MessageBox.Show(msg, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -150,6 +164,52 @@ namespace Autod_ja_Omanikud.Forms
                 _context.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        private void LoadSavedLanguage()
+        {
+            try
+            {
+                var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, LangConfigFileName);
+                if (File.Exists(path))
+                {
+                    var text = File.ReadAllText(path).Trim();
+                    if (!string.IsNullOrEmpty(text))
+                        _currentLang = text;
+                }
+            }
+            catch { }
+        }
+
+        private CultureInfo GetCulture()
+        {
+            try { return new CultureInfo(_currentLang); }
+            catch { return CultureInfo.InvariantCulture; }
+        }
+
+        private void ApplyTranslations()
+        {
+            var ci = GetCulture();
+            var rm = _resManager;
+
+            var s = rm.GetString("LoginForm_Title", ci);
+            if (!string.IsNullOrEmpty(s)) Text = s;
+
+            s = rm.GetString("LoginForm_Username", ci);
+            if (!string.IsNullOrEmpty(s))
+                _txtUsername.PlaceholderText = s;
+
+            s = rm.GetString("LoginForm_Password", ci);
+            if (!string.IsNullOrEmpty(s))
+                _txtPassword.PlaceholderText = s;
+
+            s = rm.GetString("LoginForm_BtnLogin", ci);
+            if (!string.IsNullOrEmpty(s))
+                _btnLogin.Text = s;
+
+            s = rm.GetString("LoginForm_BtnCancel", ci);
+            if (!string.IsNullOrEmpty(s))
+                _btnCancel.Text = s;
         }
     }
 }

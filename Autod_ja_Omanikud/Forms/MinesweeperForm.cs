@@ -1,6 +1,9 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Globalization;
+using System.Resources;
+using System.IO;
 
 namespace Autod_ja_Omanikud.Forms
 {
@@ -28,9 +31,13 @@ namespace Autod_ja_Omanikud.Forms
             Hard
         }
 
+        // localization
+        private string _currentLang = "en";
+        private const string LangConfigFileName = "language.config";
+        private ResourceManager _resManager => Properties.Resources.ResourceManager;
+
         public MinesweeperForm()
         {
-            Text = "Minesweeper";
             StartPosition = FormStartPosition.CenterScreen;
             FormBorderStyle = FormBorderStyle.FixedSingle;
             MaximizeBox = false;
@@ -38,6 +45,10 @@ namespace Autod_ja_Omanikud.Forms
             _grid = new TableLayoutPanel { Dock = DockStyle.Fill };
 
             InitializeLayout();
+
+            LoadSavedLanguage();
+            ApplyTranslations();
+
             SetDifficulty(Difficulty.Easy);
             NewGame();
         }
@@ -54,7 +65,7 @@ namespace Autod_ja_Omanikud.Forms
 
             var lbl = new Label
             {
-                Text = "Difficulty:",
+                Text = "Raskus:",
                 AutoSize = true,
                 Margin = new Padding(3, 10, 3, 3)
             };
@@ -64,7 +75,7 @@ namespace Autod_ja_Omanikud.Forms
                 DropDownStyle = ComboBoxStyle.DropDownList,
                 Width = 120
             };
-            _cmbDifficulty.Items.AddRange(new object[] { "Easy", "Medium", "Hard" });
+            _cmbDifficulty.Items.AddRange(new object[] { "Lihtne", "Keskel", "Raske" });
             _cmbDifficulty.SelectedIndexChanged += (_, __) =>
             {
                 SetDifficulty((Difficulty)_cmbDifficulty.SelectedIndex);
@@ -74,7 +85,7 @@ namespace Autod_ja_Omanikud.Forms
 
             _btnRestart = new Button
             {
-                Text = "Restart",
+                Text = "Taask�ivita",
                 AutoSize = true,
                 Margin = new Padding(10, 5, 3, 3)
             };
@@ -276,43 +287,90 @@ namespace Autod_ja_Omanikud.Forms
 
         private void GameOver(bool win)
         {
-            if (_gameOver) return;
-            _gameOver = true;
-
-            // reveal all mines
-            for (int r = 0; r < _rows; r++)
-            {
-                for (int c = 0; c < _cols; c++)
-                {
-                    if (_hasMine[r, c])
-                    {
-                        var b = _buttons[r, c];
-                        b.Text = "*";
-                        b.BackColor = win ? Color.LightGreen : Color.Red;
-                    }
-                }
-            }
+            var ci = GetCulture();
+            var rm = _resManager;
 
             if (win)
             {
-                var res = MessageBox.Show("You cleared the field! Go back to login?", "Minesweeper", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                var msg = rm.GetString("Minesweeper_WinMessage", ci) ?? "Congratulations! You cleared the field. New game?";
+                var res = MessageBox.Show(msg, Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (res == DialogResult.Yes)
-                {
-                    BackToLoginRequested = true;
-                    Close();
-                }
-                else
                 {
                     NewGame();
                 }
             }
             else
             {
-                var res = MessageBox.Show("Boom! New game?", "Minesweeper", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                var msg = rm.GetString("Minesweeper_LoseMessage", ci) ?? "Boom! New game?";
+                var res = MessageBox.Show(msg, Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (res == DialogResult.Yes)
                 {
                     NewGame();
                 }
+            }
+        }
+
+        private void LoadSavedLanguage()
+        {
+            try
+            {
+                var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, LangConfigFileName);
+                if (File.Exists(path))
+                {
+                    var text = File.ReadAllText(path).Trim();
+                    if (!string.IsNullOrEmpty(text))
+                        _currentLang = text;
+                }
+            }
+            catch { }
+        }
+
+        private CultureInfo GetCulture()
+        {
+            try { return new CultureInfo(_currentLang); }
+            catch { return CultureInfo.InvariantCulture; }
+        }
+
+        private void ApplyTranslations()
+        {
+            var ci = GetCulture();
+            var rm = _resManager;
+
+            var s = rm.GetString("Minesweeper_Title", ci);
+            if (!string.IsNullOrEmpty(s)) Text = s;
+
+            // difficulty label and items
+            foreach (Control c in Controls)
+            {
+                if (c is FlowLayoutPanel flp)
+                {
+                    foreach (Control child in flp.Controls)
+                    {
+                        if (child is Label lbl)
+                        {
+                            var t = rm.GetString("Minesweeper_DifficultyLabel", ci);
+                            if (!string.IsNullOrEmpty(t)) lbl.Text = t;
+                        }
+                    }
+                }
+            }
+
+            if (_cmbDifficulty != null && _cmbDifficulty.Items.Count == 3)
+            {
+                var easy = rm.GetString("Minesweeper_Diff_Easy", ci) ?? "Easy";
+                var med = rm.GetString("Minesweeper_Diff_Medium", ci) ?? "Medium";
+                var hard = rm.GetString("Minesweeper_Diff_Hard", ci) ?? "Hard";
+
+                int sel = _cmbDifficulty.SelectedIndex;
+                _cmbDifficulty.Items.Clear();
+                _cmbDifficulty.Items.AddRange(new object[] { easy, med, hard });
+                _cmbDifficulty.SelectedIndex = sel >= 0 && sel < _cmbDifficulty.Items.Count ? sel : 0;
+            }
+
+            if (_btnRestart != null)
+            {
+                var t = rm.GetString("Minesweeper_Restart", ci);
+                if (!string.IsNullOrEmpty(t)) _btnRestart.Text = t;
             }
         }
     }

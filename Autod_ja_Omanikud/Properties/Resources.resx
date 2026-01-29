@@ -94,4 +94,119 @@
 	<data name="btnUpdateCarService">
 		<value>Update Entry</value>
 	</data>
+
+	<!-- Users button on main form -->
+	<data name="Form1_Users">
+		<value>Users</value>
+	</data>
+
+	<!-- LoginForm localization -->
+	<data name="LoginForm_Title">
+		<value>Login</value>
+	</data>
+	<data name="LoginForm_Username">
+		<value>Username</value>
+	</data>
+	<data name="LoginForm_Password">
+		<value>Password</value>
+	</data>
+	<data name="LoginForm_BtnLogin">
+		<value>Login</value>
+	</data>
+	<data name="LoginForm_BtnCancel">
+		<value>Cancel</value>
+	</data>
+	<data name="LoginForm_Error_Empty">
+		<value>Enter username and password.</value>
+	</data>
+	<data name="LoginForm_Error_Invalid">
+		<value>Invalid username or password.</value>
+	</data>
+
+	<!-- UserManagementForm localization -->
+	<data name="UserManagement_Title">
+		<value>User Management</value>
+	</data>
+	<data name="UserManagement_BtnAdd">
+		<value>Add</value>
+	</data>
+	<data name="UserManagement_BtnEdit">
+		<value>Update</value>
+	</data>
+	<data name="UserManagement_BtnDelete">
+		<value>Delete</value>
+	</data>
+	<data name="UserManagement_Field_Username">
+		<value>Username</value>
+	</data>
+	<data name="UserManagement_Field_Password">
+		<value>Password</value>
+	</data>
+	<data name="UserManagement_Field_PasswordKeep">
+		<value>Password (leave blank to keep)</value>
+	</data>
+	<data name="UserManagement_Field_SuperAdmin">
+		<value>Super admin</value>
+	</data>
+	<data name="UserManagement_Field_CanManageOwners">
+		<value>Can manage owners</value>
+	</data>
+	<data name="UserManagement_Field_CanManageCars">
+		<value>Can manage cars</value>
+	</data>
+	<data name="UserManagement_Field_CanManageServices">
+		<value>Can manage services</value>
+	</data>
+	<data name="UserManagement_Field_CanManageMaintenance">
+		<value>Can manage maintenance</value>
+	</data>
+	<data name="UserManagement_Field_CanManageUsers">
+		<value>Can manage users</value>
+	</data>
+	<data name="UserManagement_Yes">
+		<value>Yes</value>
+	</data>
+	<data name="UserManagement_No">
+		<value>No</value>
+	</data>
+	<data name="UserManagement_Error_UsernameRequired">
+		<value>Username is required.</value>
+	</data>
+	<data name="UserManagement_Error_UsernameExists">
+		<value>Username already exists.</value>
+	</data>
+
+	<!-- ModalForm localization -->
+	<data name="ModalForm_OK">
+		<value>OK</value>
+	</data>
+	<data name="ModalForm_Cancel">
+		<value>Cancel</value>
+	</data>
+
+	<!-- MinesweeperForm localization -->
+	<data name="Minesweeper_Title">
+		<value>Minesweeper</value>
+	</data>
+	<data name="Minesweeper_DifficultyLabel">
+		<value>Difficulty:</value>
+	</data>
+	<data name="Minesweeper_Diff_Easy">
+		<value>Easy</value>
+	</data>
+	<data name="Minesweeper_Diff_Medium">
+		<value>Medium</value>
+	</data>
+	<data name="Minesweeper_Diff_Hard">
+		<value>Hard</value>
+	</data>
+	<data name="Minesweeper_Restart">
+		<value>Restart</value>
+	</data>
+	<data name="Minesweeper_WinMessage">
+		<value>Congratulations! You cleared the field. New game?</value>
+	</data>
+	<data name="Minesweeper_LoseMessage">
+		<value>Boom! New game?</value>
+	</data>
 </root>

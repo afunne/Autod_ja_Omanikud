@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using System.Globalization;
+using System.Resources;
+using System.IO;
 
 namespace Autod_ja_Omanikud.Forms
 {
@@ -33,6 +36,11 @@ namespace Autod_ja_Omanikud.Forms
         private readonly Dictionary<string, Control> _controls = new();
 
         public Dictionary<string, string> Values { get; private set; } = new();
+
+        // localization
+        private string _currentLang = "en";
+        private const string LangConfigFileName = "language.config";
+        private ResourceManager _resManager => Properties.Resources.ResourceManager;
 
         public ModalForm(string title, IEnumerable<FieldSpec> fields)
         {
@@ -188,6 +196,50 @@ namespace Autod_ja_Omanikud.Forms
 
             DialogResult = DialogResult.OK;
             Close();
+        }
+
+        private void LoadSavedLanguage()
+        {
+            try
+            {
+                var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, LangConfigFileName);
+                if (File.Exists(path))
+                {
+                    var text = File.ReadAllText(path).Trim();
+                    if (!string.IsNullOrEmpty(text))
+                        _currentLang = text;
+                }
+            }
+            catch { }
+        }
+
+        private CultureInfo GetCulture()
+        {
+            try { return new CultureInfo(_currentLang); }
+            catch { return CultureInfo.InvariantCulture; }
+        }
+
+        private void ApplyTranslations()
+        {
+            var ci = GetCulture();
+            var rm = _resManager;
+
+            foreach (Control c in Controls)
+            {
+                if (c is Button b)
+                {
+                    if (b.DialogResult == DialogResult.OK)
+                    {
+                        var s = rm.GetString("ModalForm_OK", ci);
+                        if (!string.IsNullOrEmpty(s)) b.Text = s;
+                    }
+                    else if (b.DialogResult == DialogResult.Cancel)
+                    {
+                        var s = rm.GetString("ModalForm_Cancel", ci);
+                        if (!string.IsNullOrEmpty(s)) b.Text = s;
+                    }
+                }
+            }
         }
     }
 }

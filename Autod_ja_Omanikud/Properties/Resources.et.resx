@@ -86,12 +86,127 @@
 	</data>
 
 	<data name="txtMileage_Placeholder">
-		<value>Kilometraaž</value>
+		<value>Läbisõit</value>
 	</data>
 	<data name="btnAddCarService">
-		<value>Lisa kirje</value>
+		<value>Lisa kanne</value>
 	</data>
 	<data name="btnUpdateCarService">
-		<value>Uuenda kirjet</value>
+		<value>Uuenda kannet</value>
+	</data>
+
+	<!-- Users button on main form -->
+	<data name="Form1_Users">
+		<value>Kasutajad</value>
+	</data>
+
+	<!-- LoginForm localization -->
+	<data name="LoginForm_Title">
+		<value>Logi sisse</value>
+	</data>
+	<data name="LoginForm_Username">
+		<value>Kasutajanimi</value>
+	</data>
+	<data name="LoginForm_Password">
+		<value>Parool</value>
+	</data>
+	<data name="LoginForm_BtnLogin">
+		<value>Logi sisse</value>
+	</data>
+	<data name="LoginForm_BtnCancel">
+		<value>Tühista</value>
+	</data>
+	<data name="LoginForm_Error_Empty">
+		<value>Sisesta kasutajanimi ja parool.</value>
+	</data>
+	<data name="LoginForm_Error_Invalid">
+		<value>Vale kasutajanimi või parool.</value>
+	</data>
+
+	<!-- UserManagementForm localization -->
+	<data name="UserManagement_Title">
+		<value>Kasutajate haldus</value>
+	</data>
+	<data name="UserManagement_BtnAdd">
+		<value>Lisa</value>
+	</data>
+	<data name="UserManagement_BtnEdit">
+		<value>Uuenda</value>
+	</data>
+	<data name="UserManagement_BtnDelete">
+		<value>Kustuta</value>
+	</data>
+	<data name="UserManagement_Field_Username">
+		<value>Kasutajanimi</value>
+	</data>
+	<data name="UserManagement_Field_Password">
+		<value>Parool</value>
+	</data>
+	<data name="UserManagement_Field_PasswordKeep">
+		<value>Parool (jäta tühjaks, et mitte muuta)</value>
+	</data>
+	<data name="UserManagement_Field_SuperAdmin">
+		<value>Supperadministraator</value>
+	</data>
+	<data name="UserManagement_Field_CanManageOwners">
+		<value>Saab hallata omanikke</value>
+	</data>
+	<data name="UserManagement_Field_CanManageCars">
+		<value>Saab hallata autosid</value>
+	</data>
+	<data name="UserManagement_Field_CanManageServices">
+		<value>Saab hallata teenuseid</value>
+	</data>
+	<data name="UserManagement_Field_CanManageMaintenance">
+		<value>Saab hallata hooldust</value>
+	</data>
+	<data name="UserManagement_Field_CanManageUsers">
+		<value>Saab hallata kasutajaid</value>
+	</data>
+	<data name="UserManagement_Yes">
+		<value>Jah</value>
+	</data>
+	<data name="UserManagement_No">
+		<value>Ei</value>
+	</data>
+	<data name="UserManagement_Error_UsernameRequired">
+		<value>Kasutajanimi on kohustuslik.</value>
+	</data>
+	<data name="UserManagement_Error_UsernameExists">
+		<value>Kasutajanimi on juba olemas.</value>
+	</data>
+
+	<!-- ModalForm localization -->
+	<data name="ModalForm_OK">
+		<value>OK</value>
+	</data>
+	<data name="ModalForm_Cancel">
+		<value>Tühista</value>
+	</data>
+
+	<!-- MinesweeperForm localization -->
+	<data name="Minesweeper_Title">
+		<value>Miinijaht</value>
+	</data>
+	<data name="Minesweeper_DifficultyLabel">
+		<value>Raskusaste:</value>
+	</data>
+	<data name="Minesweeper_Diff_Easy">
+		<value>Lihtne</value>
+	</data>
+	<data name="Minesweeper_Diff_Medium">
+		<value>Keskmine</value>
+	</data>
+	<data name="Minesweeper_Diff_Hard">
+		<value>Raske</value>
+	</data>
+	<data name="Minesweeper_Restart">
+		<value>Alusta uuesti</value>
+	</data>
+	<data name="Minesweeper_WinMessage">
+		<value>Palju õnne! Puhastasid mänguvälja. Uus mäng?</value>
+	</data>
+	<data name="Minesweeper_LoseMessage">
+		<value>Buum! Kas proovime uuesti?</value>
 	</data>
 </root>

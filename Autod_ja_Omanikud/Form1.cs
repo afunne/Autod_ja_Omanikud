@@ -627,6 +627,9 @@ namespace Autod_ja_Omanikud
             if (!string.IsNullOrEmpty(s)) btnDeleteCarService.Text = s;
             s = rm.GetString("btnUpdateCarService", ci);
             if (!string.IsNullOrEmpty(s)) btnUpdateCarService.Text = s;
+
+            // Users button
+            btnManageUsers.Text = rm.GetString("Form1_Users", ci);
         }
     }
 }
