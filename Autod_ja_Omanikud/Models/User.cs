@@ -8,13 +8,13 @@ namespace Autod_ja_Omanikud.Models
         public string Username { get; set; } = string.Empty;
         public string PasswordHash { get; set; } = string.Empty;
 
-        public bool IsSuperAdmin { get; set; }
-
-        public bool CanManageOwners { get; set; }
-        public bool CanManageCars { get; set; }
-        public bool CanManageServices { get; set; }
-        public bool CanManageMaintenance { get; set; }
-        public bool CanManageUsers { get; set; }
+        // Permissions
+        public bool IsSuperAdmin { get; set; } // can't be changed/removed via UI
+        public bool CanManageOwners { get; set; } // allows managing car owners
+        public bool CanManageCars { get; set; } // allows managing cars with their owners
+        public bool CanManageServices { get; set; } // allows managing services
+        public bool CanManageMaintenance { get; set; } // allows managing maintenance
+        public bool CanManageUsers { get; set; } // allows managing users
 
         public static string HashPassword(string password)
         {
